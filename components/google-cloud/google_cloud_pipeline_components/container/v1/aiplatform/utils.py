@@ -101,13 +101,10 @@ def resolve_annotation(annotation: Any) -> Any:
 
   # handle optional types
   if getattr(annotation, '__origin__', None) is Union:
-    # assume optional type
-    # TODO check for optional type
-    resolved_annotation = get_forward_reference(annotation.__args__[0])
-    if resolved_annotation:
-      return resolved_annotation
-    else:
-      return annotation.__args__[0]
+    args = getattr(annotation, '__args__', ())
+    if len(args) == 2 and type(None) in args:
+      arg = args[0] if args[1] is type(None) else args[1]
+      return get_forward_reference(arg) or arg
 
   if annotation is inspect._empty:
     return None
